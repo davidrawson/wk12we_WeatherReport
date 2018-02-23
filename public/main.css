@@ -1,0 +1,10 @@
+#main-map{
+  height: 700px;
+  width: 700px;
+  border-style: solid;
+  border-color: black
+}
+
+body{
+  background-color: #9fd9ff;
+}
