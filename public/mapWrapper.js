@@ -7,13 +7,6 @@ const MapWrapper = function(coords, container, zoom){
   })
 }
 
-// MapWrapper.prototype.addInfoWindow = function (coords, contentString) {
-//   const window = new google.maps.InfoWindow({
-//     position: coords,
-//     map: this.googleMap,
-//     content: contentString,
-//   })
-// };
 
 MapWrapper.prototype.addMarker = function (coords) {
   // assigning the marker to a variable isn't necessary
@@ -26,6 +19,9 @@ MapWrapper.prototype.addMarker = function (coords) {
       map: this.googleMap
     });
   }
+
+  localStorage.setItem('coords', JSON.stringify(coords));
+
   this.getTimezone(coords);
 
   // formApiUrl(coords);

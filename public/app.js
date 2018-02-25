@@ -1,3 +1,4 @@
+
 const  app = function(){
 
   const center   = {lat: 54.619007, lng: -2.276744};
@@ -32,7 +33,7 @@ const requestComplete = function(){
   const jsonString = this.responseText;
   // Parse the string into an array of objects
   const locationData = JSON.parse(jsonString);
-
+  console.log(locationData);
   displayData(locationData);
 }
 
@@ -40,27 +41,33 @@ const timezoneRequestComplete = function(){
   // .this here refers to request from the eventlistener line.
   if(this.status !== 200) return;
   const jsonString = this.responseText;
+  localStorage.setItem('timezone', jsonString)
   // Parse the string into an array of objects
   const timezoneData = JSON.parse(jsonString);
-  console.log(timezoneData);
-  console.log(marker.getPosition());
-  // displayData(locationData);
+  const coords = JSON.parse(localStorage.getItem('coords'));
+  console.log(coords);
+
+  formWeatherApiUrl(coords);
 }
 
 const displayData = function(locationData){
-  // console.log("displayDataForLocation", locationData.name);
-  // console.log(locationData);
+
+  const timezone = JSON.parse(localStorage.getItem('timezone'));
+  console.log(timezone);
+  console.log(timezone.rawoffset);
+
   const sunrise = timeConverter(locationData.sys.sunrise, 0);
-  // console.log(sunrise);
   const sunset = timeConverter(locationData.sys.sunset, 0);
-  // console.log(sunset);
+  const sunriseLocal = timeConverter(locationData.sys.sunrise, timezone.rawOffset);
+  const sunsetLocal = timeConverter(locationData.sys.sunset, timezone.rawOffset);
+
   const temp = tempConverter(locationData.main.temp).toFixed(1);
-  // console.log(temp + " degrees centigrade");
+
   const weatherMain = locationData.weather[0].main;
   const weatherDesc = locationData.weather[0].description;
-  // console.log(weatherMain + " - " + weatherDesc);
+
   const windSpeedMph = windSpeedConverter(locationData.wind.speed).toFixed(0);
-  // console.log(windSpeedMph + " mph");
+
   const rightDiv = document.getElementById("forecast");
   rightDiv.innerText = "";
   const nameHeader = document.createElement('h1');
@@ -85,9 +92,13 @@ const displayData = function(locationData){
 
   const li_sunrise = document.createElement('li');
   li_sunrise.innerText = "Sunrise (UTC): " + sunrise;
-
   const li_sunset = document.createElement('li');
   li_sunset.innerText = "Sunset (UTC): " + sunset;
+
+  const li_sunriseLocal = document.createElement('li');
+  li_sunriseLocal.innerText = "Sunrise ("+timezone.timeZoneName+"): " + sunriseLocal;
+  const li_sunsetLocal = document.createElement('li');
+  li_sunsetLocal.innerText = "Sunset ("+timezone.timeZoneName+"): " + sunsetLocal;
 
   rightDiv.appendChild(nameHeader);
   rightDiv.appendChild(line);
@@ -99,13 +110,16 @@ const displayData = function(locationData){
   rightDiv.appendChild(line);
   rightDiv.appendChild(li_sunrise);
   rightDiv.appendChild(li_sunset);
+  rightDiv.appendChild(li_sunriseLocal);
+  rightDiv.appendChild(li_sunsetLocal);
 
 
 
 }
 
 const timeConverter = function (UNIX_timestamp, offset){
-  const time = new Date(UNIX_timestamp * 1000) + offset;
+  UNIX_timestamp += offset;
+  let time = new Date(UNIX_timestamp * 1000);
   let hour = time.getHours();
   if (hour < 10){
     hour  = "0" + time.getHours();
