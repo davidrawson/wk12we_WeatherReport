@@ -1,4 +1,4 @@
-var marker;
+let marker;
 
 const MapWrapper = function(coords, container, zoom){
   this.googleMap = new google.maps.Map(container, {
@@ -31,13 +31,8 @@ MapWrapper.prototype.addMarker = function (coords) {
 
 MapWrapper.prototype.addClickEvent = function () {
   google.maps.event.addListener(this.googleMap, 'click', function(event){
-    // console.log(event);
-    // console.log(event.latLng.lat());
-
     // You don't construct a string. IT IS AN OBJECT !
     let coords = {lat:event.latLng.lat(), lng:event.latLng.lng()};
     this.addMarker(coords);
-    // return coords;
-    // moveMap(coords);
   }.bind(this))
 };

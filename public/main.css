@@ -8,3 +8,20 @@
 body{
   background-color: #9fd9ff;
 }
+
+.container {
+  display: table;
+  width: 100%;
+}
+
+.left-half {
+  position: absolute;
+  left: 8px;
+  width: 50%;
+}
+
+.right-half {
+  position: absolute;
+  right: 0px;
+  width: 50%;
+}

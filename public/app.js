@@ -6,26 +6,14 @@ const  app = function(){
   mainMap.fullscreenControl = true;
   coords = mainMap.addClickEvent();
 
-  // console.log("coords in app", coords);
-  //
-  // const lat = 55.9445699;
-  // const lon = -3.1984922;
-  // const url = "http://api.openweathermap.org/data/2.5/weather?lat=" + lat + "&lon=" + lon + "&APPID=" + APIkey;
-  //
-  // makeRequest(url, requestComplete);
-  // // requestComplete is a callback for when the request is um completed.
-  // button.addEventListener("click", handleButtonClicked)
 }
 
 const formApiUrl = function(coords){
-  // const lat = 55.9445699;
-  // const lon = -3.1984922;
   const lat = coords.lat;
   const lon = coords.lng;
   const url = "http://api.openweathermap.org/data/2.5/weather?lat=" + lat + "&lon=" + lon + "&APPID=" + APIkey;
 
   makeRequest(url, requestComplete);
-
 }
 
 const makeRequest = function(url, callback){
@@ -42,37 +30,70 @@ const requestComplete = function(){
   // .this here refers to request from the eventlistener line.
   if(this.status !== 200) return;
   const jsonString = this.responseText;
-  // console.log(jsonString);
-  // console.log("requestComplete");
   // Parse the string into an array of objects
   const locationData = JSON.parse(jsonString);
 
   displayData(locationData);
 }
 
-// const retrieveData = function(coords){
-//   console.log(marker);
-//
-//   // const lat = 55.9445699;
-//   // const lon = -3.1984922;
-//   const lat = coords.lat;
-//   const lon = coords.lng;
-//
-//   const url = "http://api.openweathermap.org/data/2.5/weather?lat=" + lat + "&lon=" + lon + "&APPID=" + APIkey;
-//
-// }
-
 const displayData = function(locationData){
-  console.log("displayDataForLocation", locationData.name);
-
+  // console.log("displayDataForLocation", locationData.name);
+  // console.log(locationData);
   const sunrise = timeConverter(locationData.sys.sunrise);
-  console.log(sunrise);
+  // console.log(sunrise);
   const sunset = timeConverter(locationData.sys.sunset);
-  console.log(sunset);
+  // console.log(sunset);
+  const temp = tempConverter(locationData.main.temp).toFixed(1);
+  // console.log(temp + " degrees centigrade");
+  const weatherMain = locationData.weather[0].main;
+  const weatherDesc = locationData.weather[0].description;
+  // console.log(weatherMain + " - " + weatherDesc);
+  const windSpeedMph = windSpeedConverter(locationData.wind.speed).toFixed(0);
+  // console.log(windSpeedMph + " mph");
+  const rightDiv = document.getElementById("forecast");
+  rightDiv.innerText = "";
+  const nameHeader = document.createElement('h1');
+  nameHeader.innerText = locationData.name;
+
+  const line = document.createElement('br');
+
+  const h3_weather = document.createElement('h3');
+  h3_weather.innerText = weatherMain + " - " + weatherDesc;
+
+  const ul = document.createElement('ul');
+
+  const li_temp = document.createElement('li')
+  li_temp.innerText = "Temperature (°C): " + temp;
+
+  const li_humidity = document.createElement('li');
+  li_humidity.innerText = "Humidity (%): " + locationData.main.humidity;
+
+  const li_windSpeed = document.createElement('li');
+  li_windSpeed.innerText = "Wind speed (MPH): " + windSpeedMph;
+
+
+  const li_sunrise = document.createElement('li');
+  li_sunrise.innerText = "Sunrise (UTC): " + sunrise;
+
+  const li_sunset = document.createElement('li');
+  li_sunset.innerText = "Sunset (UTC): " + sunset;
+
+  rightDiv.appendChild(nameHeader);
+  rightDiv.appendChild(line);
+  rightDiv.appendChild(h3_weather);
+  rightDiv.appendChild(ul);
+  rightDiv.appendChild(li_temp);
+  rightDiv.appendChild(li_humidity);
+  rightDiv.appendChild(li_windSpeed);
+  rightDiv.appendChild(line);
+  rightDiv.appendChild(li_sunrise);
+  rightDiv.appendChild(li_sunset);
+
+
 
 }
 
-function timeConverter(UNIX_timestamp){
+const timeConverter = function (UNIX_timestamp){
   const time = new Date(UNIX_timestamp * 1000);
   let hour = time.getHours();
   if (hour < 10){
@@ -88,6 +109,16 @@ function timeConverter(UNIX_timestamp){
   }
   const displayTime = hour + ':' + min + ':' + sec ;
   return displayTime;
+}
+
+const tempConverter = function(maxTemp){
+  const tempDegreesC = maxTemp - 273.15;
+  return tempDegreesC
+}
+
+const windSpeedConverter = function(metresPerSecond){
+  const windSpeedMph = metresPerSecond * 2.23694;
+  return windSpeedMph;
 }
 
 
