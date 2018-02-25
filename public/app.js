@@ -3,12 +3,12 @@ const  app = function(){
   const center   = {lat: 54.619007, lng: -2.276744};
   const mapDiv = document.getElementById('main-map');
   const mainMap = new MapWrapper( center, mapDiv, 6);
-  mainMap.fullscreenControl = true;
+  // mainMap.fullscreenControl = true;
   coords = mainMap.addClickEvent();
 
 }
 
-const formApiUrl = function(coords){
+const formWeatherApiUrl = function(coords){
   const lat = coords.lat;
   const lon = coords.lng;
   const url = "http://api.openweathermap.org/data/2.5/weather?lat=" + lat + "&lon=" + lon + "&APPID=" + APIkey;
@@ -36,12 +36,23 @@ const requestComplete = function(){
   displayData(locationData);
 }
 
+const timezoneRequestComplete = function(){
+  // .this here refers to request from the eventlistener line.
+  if(this.status !== 200) return;
+  const jsonString = this.responseText;
+  // Parse the string into an array of objects
+  const timezoneData = JSON.parse(jsonString);
+  console.log(timezoneData);
+  console.log(marker.getPosition());
+  // displayData(locationData);
+}
+
 const displayData = function(locationData){
   // console.log("displayDataForLocation", locationData.name);
   // console.log(locationData);
-  const sunrise = timeConverter(locationData.sys.sunrise);
+  const sunrise = timeConverter(locationData.sys.sunrise, 0);
   // console.log(sunrise);
-  const sunset = timeConverter(locationData.sys.sunset);
+  const sunset = timeConverter(locationData.sys.sunset, 0);
   // console.log(sunset);
   const temp = tempConverter(locationData.main.temp).toFixed(1);
   // console.log(temp + " degrees centigrade");
@@ -93,8 +104,8 @@ const displayData = function(locationData){
 
 }
 
-const timeConverter = function (UNIX_timestamp){
-  const time = new Date(UNIX_timestamp * 1000);
+const timeConverter = function (UNIX_timestamp, offset){
+  const time = new Date(UNIX_timestamp * 1000) + offset;
   let hour = time.getHours();
   if (hour < 10){
     hour  = "0" + time.getHours();
