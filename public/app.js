@@ -4,15 +4,12 @@ const  app = function(){
   const center   = {lat: 54.619007, lng: -2.276744};
   const mapDiv = document.getElementById('main-map');
   const mainMap = new MapWrapper( center, mapDiv, 6);
-  // mainMap.fullscreenControl = true;
   coords = mainMap.addClickEvent();
-
 }
 
-const formWeatherApiUrl = function(coords){
-  const lat = coords.lat;
-  const lon = coords.lng;
-  const url = "http://api.openweathermap.org/data/2.5/weather?lat=" + lat + "&lon=" + lon + "&APPID=" + APIkey;
+const formWeatherApiUrl = function(){
+  const coords = JSON.parse(localStorage.getItem('coords'));
+  const url = "http://api.openweathermap.org/data/2.5/weather?lat=" + coords.lat + "&lon=" + coords.lng + "&APPID=" + APIkey;
 
   makeRequest(url, requestComplete);
 }
@@ -20,20 +17,16 @@ const formWeatherApiUrl = function(coords){
 const makeRequest = function(url, callback){
   const request = new XMLHttpRequest();
   request.open("GET", url);
-  // Remember, you can't do anything with the data until you have it.
-  // The callback, requestComplete will fire up once loaded.
   request.addEventListener("load", callback);
   // THIS is an easy step to miss out.
   request.send();
 }
 
 const requestComplete = function(){
-  // .this here refers to request from the eventlistener line.
   if(this.status !== 200) return;
   const jsonString = this.responseText;
-  // Parse the string into an array of objects
   const locationData = JSON.parse(jsonString);
-  console.log(locationData);
+
   displayData(locationData);
 }
 
@@ -45,16 +38,13 @@ const timezoneRequestComplete = function(){
   // Parse the string into an array of objects
   const timezoneData = JSON.parse(jsonString);
   const coords = JSON.parse(localStorage.getItem('coords'));
-  console.log(coords);
 
-  formWeatherApiUrl(coords);
+  formWeatherApiUrl();
 }
 
 const displayData = function(locationData){
 
   const timezone = JSON.parse(localStorage.getItem('timezone'));
-  console.log(timezone);
-  console.log(timezone.rawoffset);
 
   const sunrise = timeConverter(locationData.sys.sunrise, 0);
   const sunset = timeConverter(locationData.sys.sunset, 0);
@@ -82,13 +72,10 @@ const displayData = function(locationData){
 
   const li_temp = document.createElement('li')
   li_temp.innerText = "Temperature (°C): " + temp;
-
   const li_humidity = document.createElement('li');
   li_humidity.innerText = "Humidity (%): " + locationData.main.humidity;
-
   const li_windSpeed = document.createElement('li');
   li_windSpeed.innerText = "Wind speed (MPH): " + windSpeedMph;
-
 
   const li_sunrise = document.createElement('li');
   li_sunrise.innerText = "Sunrise (UTC): " + sunrise;
@@ -112,8 +99,6 @@ const displayData = function(locationData){
   rightDiv.appendChild(li_sunset);
   rightDiv.appendChild(li_sunriseLocal);
   rightDiv.appendChild(li_sunsetLocal);
-
-
 
 }
 
@@ -145,9 +130,5 @@ const windSpeedConverter = function(metresPerSecond){
   const windSpeedMph = metresPerSecond * 2.23694;
   return windSpeedMph;
 }
-
-
-
-
 
 document.addEventListener('DOMContentLoaded', app);
